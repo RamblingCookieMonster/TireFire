@@ -19,8 +19,6 @@
             For your convenience, you can use Set just like New - specify an ID rather than TargetID
         Remove
             Required: RootPath, ID
-    .EXAMPLE
-
 #>
 [cmdletbinding()]
 param(
@@ -38,7 +36,7 @@ param(
     [string]$Source
 )
 if(-not $RootPath){
-    throw "RootPath required for now"    
+    throw "RootPath required for now"
 }
 if(-not (Test-Path $RootPath)){
     throw "RootPath [$RootPath] does not exist.  Create it first"
