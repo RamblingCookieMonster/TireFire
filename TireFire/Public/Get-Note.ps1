@@ -13,17 +13,22 @@ Function Get-Note {
     #>
     [cmdletbinding()]
     param(
+        [string]$Query,
         [string]$ID,
         [string[]]$Tags,
+        [switch]$IncludeRelated,
         [string]$Backend = $Script:TireFireConfig.Backend,
         [hashtable]$BackendConfig = $Script:TireFireConfig.BackendConfig
     )
     $Params = @{
-        ID = $ID
         Action = 'Get'
     }
-    if($PSBoundParameters.ContainsKey('Tags')){
-        $Params.add('Tags', $Tags)
+    echo ID, Tags, IncludeRelated, Query | ForEach-Object {
+        $Key = $_
+        if($PSBoundParameters.ContainsKey($Key)){
+            $Value = $PSBoundParameters[$Key]
+            $Params.add($Key, $Value)
+        }
     }
     foreach($Param in $BackendConfig.Keys){
         $Params.Add($Param, $BackendConfig[$Param])

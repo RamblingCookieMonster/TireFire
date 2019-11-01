@@ -8,7 +8,7 @@
         New-Note -Data 'A bunch of dataaaa' -Tags tag1, tag2
     .EXAMPLE
         New-Note -Data 'A bunch of dataaaa' -Tags tag1, tag2 -ID existing_id -Force
-        
+
     #>
     [cmdletbinding()]
     param(
@@ -16,6 +16,7 @@
         [string[]]$Tags,
         [string[]]$AddTag,
         [string[]]$RemoveTag,
+        [string[]]$RelatedIDs,
         [object]$Data,
         [string]$Source,
         [string]$UpdatedBy,
@@ -27,7 +28,7 @@
         $Params = @{
             Action = 'New'
         }
-        echo ID, Tags, AddTags, RemoveTags, Data, Source, UpdatedBy | ForEach-Object {
+        echo ID, Tags, Data, Source, UpdatedBy, RelatedIDs | ForEach-Object {
             $Key = $_
             if($PSBoundParameters.ContainsKey($Key)){
                 $Value = $PSBoundParameters[$Key]

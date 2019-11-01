@@ -31,6 +31,11 @@ param(
     [string]$UpdatedBy,
     [string[]]$AddTag,
     [string[]]$RemoveTag,
+    [string[]]$RelatedIDs,
+    [string[]]$AddRelatedID,
+    [string[]]$RemoveRelatedID,
+    [string]$Query,
+    [switch]$IncludeRelated,
     [switch]$Force,
     [string]$RootPath,
     [string]$Source
@@ -51,7 +56,9 @@ if(-not $PSBoundParameters.ContainsKey('UpdatedBy')){
 
 Function Get-NoteData {
     [cmdletbinding()]
-    param($Path)
+    param(
+        [string]$Path
+    )
     Write-Verbose "Getting notes from [$Path]"
     (Get-ChildItem $Path -File).foreach({
         if($_.Name -notmatch '^pstf-'){
@@ -67,23 +74,98 @@ Function Get-NoteData {
     })
 }
 
+function Select-Note {
+    [cmdletbinding()]
+    param(
+        [object[]]$InputObject,
+        [string]$ID,
+        [string]$Query,
+        [string[]]$Tags,
+        [switch]$IncludeRelated = $IncludeRelated
+    )
+    $Data = @( foreach($Note in $InputObject){
+        Write-verbose "Selecting ID [$($Note.ID)] with query [$Query] Tags [$Tags] IncludeRelated [$IncludeRelated]"
+        $Output = $False
+        if($PSBoundParameters.ContainsKey('Query')){
+            foreach($Tag in $Note.Tags){
+                if($Tag -match $Query){
+                    $Output = $true
+                    Write-Verbose "Query [$Query] matched tag [$Tag]"
+                }
+            }
+            foreach($RelatedID in $Note.RelatedIDs){
+                if($RelatedID -match $Query){
+                    $Output = $true
+                    Write-Verbose "Query [$Query] matched RelatedID [$RelatedID]"
+                }
+            }
+            if($Data.Data -match $Query){
+                $Output = $true
+                Write-Verbose "Query [$Query] matched Description [$($Data.Description)]"
+            }
+            if(-not $Output){
+                # Okay, no matches, go to town and convert data to json...  not too deep...
+                try {
+                    $StringData = $null
+                    $StringData = ConvertTo-Json -InputObject $Note.Data -Depth 3 -Compress -ErrorAction Stop
+                    if($StringData -match $Query) {
+                        $Output = $true
+                        Write-Verbose "Query [$Query] matched jsonified Description [$StringData]"
+                    }
+                }
+                catch {
+                    Write-Warning $_
+                    Write-Verbose "Could not jsonify note ID $($Note.ID), skipping."
+                }
+            }
+        }
+        elseif($PSBoundParameters.ContainsKey('Tags')) {
+            foreach($Tag in $Tags){
+                if(@($Note.Tags) -contains $Tag){
+                    $Output = $true
+                    continue
+                }
+            }
+        }
+        else {
+            $Output = $True
+        }
+        if($Output){
+            $Note
+        }
+    })
+    if($IncludeRelated){
+        $ExistingIDs = @($Data.ID)
+        $RelatedIDs = @($Data.RelatedIDs | Sort -Unique)
+        foreach($Note in $InputObject){
+            if($ExistingIDs -notcontains $Note.ID -and $RelatedIDs -Contains $Note.ID){
+                $ExistingIDs += $Note.ID
+                $Data += $Note
+            }
+        }
+        $Data
+    }
+    else {
+        $Data
+    }
+}
+
 switch($Action){
     'get' {
-        if(-not $WorkingID){
-                @(Get-NoteData -Path $RootPath).foreach({
-                    $Note = $_
-                    if($PSBoundParameters.ContainsKey('Tags')){
-                        foreach($Tag in $Tags){
-                            if(@($Note.Tags) -contains $Tag){
-                                $Note
-                                continue
-                            }
-                        }
-                    }
-                    else {
-                        $Note
-                    }
-                })
+        if(-not $ID){
+                $splat = @{
+                    InputObject = Get-NoteData -Path $RootPath
+                }
+                if($PSBoundParameters.ContainsKey('Query')){
+                    $splat.Add('Query', $Query)
+                }
+                if($PSBoundParameters.ContainsKey('IncludeRelated')){
+                    $splat.Add('IncludeRelated', $IncludeRelated)
+                }
+                if($PSBoundParameters.ContainsKey('Tags')){
+                    $splat.Add('Tags', $Tags)
+                }
+                Select-Note @splat
         }
         else {
             $NotePath = Join-Path $RootPath $ID
@@ -119,6 +201,15 @@ switch($Action){
                 }
                 'AddTag' {
                     $Note.Tags = @($Note.Tags) + @($AddTag) | Select-Object -Unique
+                }
+                'RelatedIDs' {
+                    $Note.RelatedIDs = $RelatedIDs
+                }
+                'RemoveRelatedID' {
+                    $Note.RelatedIDs = @($Note.RelatedIDs).where({$RemoveRelatedID -notcontains $_})
+                }
+                'AddRelatedID' {
+                    $Note.RelatedIDs = @($Note.RelatedIDs) + @($AddRelatedID) | Select-Object -Unique
                 }
                 'Data' {
                     $Note.Data = $Data
@@ -159,7 +250,8 @@ switch($Action){
         [pscustomobject]@{
             ID = $ID
             Data = $Data
-            Tags = $Tags
+            Tags = $Tags | Select -Unique
+            RelatedIDs = $RelatedIDs | Select -Unique
             UpdatedBy = $UpdatedBy
             UpdateDate = Get-Date
             Source = $Source

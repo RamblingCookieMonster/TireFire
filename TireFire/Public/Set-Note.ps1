@@ -1,22 +1,24 @@
 Function Set-Note {
     <#
     .SYNOPSIS
-        Create or update a note
+        Update a note
     .DESCRIPTION
-        Create or update a note
+        Update a note
     .EXAMPLE
         Set-Note -id 1 -data 'new data'
     #>
-    [cmdletbinding(DefaultParameterSetName = 'Update')]
+    [cmdletbinding()]
     param(
-        [Parameter(ParameterSetName = 'Update',
-                   Mandatory = $True)]
+        [Parameter(Mandatory = $True)]
         [string]$TargetID,
         [string]$ID,
         [string[]]$Tags,
         [string[]]$AddTag,
         [string[]]$RemoveTag,
+        [string[]]$AddRelatedID,
+        [string[]]$RemoveRelatedID,
         [object]$Data,
+        [string[]]$RelatedIDs,
         [string]$Source,
         [string]$UpdatedBy,
         [string]$Backend = $Script:TireFireConfig.Backend,
@@ -26,7 +28,7 @@ Function Set-Note {
         $Params = @{
             Action = 'Set'
         }
-        echo TargetID, ID, Tags, AddTags, RemoveTags, Data, Source, UpdatedBy | ForEach-Object {
+        echo TargetID, ID, Tags, AddTags, RemoveTags, Data, Source, UpdatedBy, RelatedIDs, AddRelatedID, RemoveRelatedID | ForEach-Object {
             $Key = $_
             if($PSBoundParameters.ContainsKey($Key)){
                 $Value = $PSBoundParameters[$Key]
