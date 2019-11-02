@@ -2,14 +2,32 @@ Function Get-Note {
     <#
     .SYNOPSIS
         Get a note
+
     .DESCRIPTION
         Get a note
+
     .EXAMPLE
         Get-Note
+
     .EXAMPLE
         Get-Note -ID some_id
+
     .EXAMPLE
         Get-Note -Tags some_tag
+
+    .PARAMETER ID
+        Get a note with this specific ID
+
+    .PARAMETER Tags
+        Get a note with at least one of these Tags
+
+    .PARAMETER Query
+        Search notes using regex (-Match)
+
+        We search a note's ID, Tags, RelatedIDs, Data, and jsonified Data
+
+    .PARAMETER IncludeRelated
+        For any note identified by your query, include all notes from RelatedIDs
     #>
     [cmdletbinding()]
     param(

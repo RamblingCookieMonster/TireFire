@@ -4,6 +4,9 @@
     .DESCRIPTION
         Get, Set, Create, or Remove notes from the File backend
 
+        BackEndConfig Parameters:
+            RootPath.  Path to notes.  All notes get a filename pstf-$id
+
         Sorry, no time for parametersets at this scale:
         Valid parameters per -Action:
 
@@ -19,6 +22,73 @@
             For your convenience, you can use Set just like New - specify an ID rather than TargetID
         Remove
             Required: RootPath, ID
+
+    .PARAMETER ID
+        New:    ID for a new note.  Defaults to randomly generated GUID
+        Set:    Change ID to this
+        Get:    Get a note with this specific ID
+        Remove: Remove a specific ID
+
+    .PARAMETER TargetID
+        Set:    ID of the note to set
+
+    .PARAMETER Action
+        Action to take for a note
+            New:    Create
+            Set:    Update
+            Get:    Read
+            Remove: Delete
+
+    .PARAMETER Data
+        The actual data for the note.  We serialize with Export-Clixml, so objects are supported
+        New:    Data for a new note
+        Set:    Change Data to this
+
+    .PARAMETER Tags
+        Tags are a way to tag or classify a note for searching or organizational purposes
+        New:    Tags for a new note
+        Set:    Change tags to this.  Removes all existing tags.  Use RemoveTag or AddTag for iterative changes
+        Get:    Get a note with at least one of the specified tags
+
+    .PARAMETER UpdatedBy
+        New:    UpdatedBy for a new note.  Defaults to $ENV:USERNAME
+        Set:    Change UpdatedBy to this.  Defaults to $ENV:USERNAME
+
+    .PARAMETER AddTag
+        Set:    Add this to existing tags of a note
+
+    .PARAMETER RemoveTag
+        Set:    Remove this to existing tags of a note
+
+    .PARAMETER RelatedIDs
+        These are a set of IDs a note is related to.  We do no validation, so you could repurpose this
+        New:    RelatedIDs for a new note
+        Set:    Change tags to this.  Removes all existing RelatedIDs.  Use RemoveRelatedID or AddRelatedID for iterative changes
+
+    .PARAMETER AddRelatedID
+        Set:    Add this to existing RelatedIDs of a note
+
+    .PARAMETER RemoveRelatedID
+        Set:    Remove this from existing RelatedIDs of a note
+
+    .PARAMETER Query
+        Get:    Search using regex (-Match).  We search a note's ID, Tags, RelatedIDs, Data, and jsonified Data
+
+    .PARAMETER IncludeRelated
+        Get:    For any note that we would output, output RelatedIDs as well
+
+    .PARAMETER Force
+        New:    If a note with the same ID exists, overwrite it
+
+    .PARAMETER Source
+        Where did this note come from?  Defaults to full path to note
+        New:    Source for a new note
+        Set:    Change Source to this
+
+    .PARAMETER RootPath
+        BackEndConfig parameter specifiying a path to notes
+
+        All notes get a filename pstf-$id
 #>
 [cmdletbinding()]
 param(
@@ -87,6 +157,10 @@ function Select-Note {
         Write-verbose "Selecting ID [$($Note.ID)] with query [$Query] Tags [$Tags] IncludeRelated [$IncludeRelated]"
         $Output = $False
         if($PSBoundParameters.ContainsKey('Query')){
+            if($Note.Data -match $Query){
+                $Output = $true
+                Write-Verbose "Query [$Query] matched ID [$($Note.ID)]"
+            }
             foreach($Tag in $Note.Tags){
                 if($Tag -match $Query){
                     $Output = $true
@@ -99,9 +173,9 @@ function Select-Note {
                     Write-Verbose "Query [$Query] matched RelatedID [$RelatedID]"
                 }
             }
-            if($Data.Data -match $Query){
+            if($Note.Data -match $Query){
                 $Output = $true
-                Write-Verbose "Query [$Query] matched Description [$($Data.Description)]"
+                Write-Verbose "Query [$Query] matched Description [$($Note.Data)]"
             }
             if(-not $Output){
                 # Okay, no matches, go to town and convert data to json...  not too deep...
@@ -182,9 +256,10 @@ switch($Action){
             $FileName = '{0}-{1}' -f 'pstf', $TargetID.TrimStart('pstf-')
             $NotePath = Join-Path $RootPath $FileName
             $ExportPath = Join-Path $RootPath $FileName
-            $Note = Import-Clixml $NotePath
+            $Note = Get-NoteData -Path $NotePath
             switch ($PSBoundParameters.Keys){
                 'ID' {
+                    # Changing the ID changes data outside of the note itself.  filename in this case
                     $NewFileName = '{0}-{1}' -f 'pstf', $ID.TrimStart('pstf-')
                     $ExportPath = Join-Path $RootPath $NewFileName
                     Move-Item -Path $NotePath -Destination $ExportPath -Force

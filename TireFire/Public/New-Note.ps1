@@ -9,6 +9,30 @@
     .EXAMPLE
         New-Note -Data 'A bunch of dataaaa' -Tags tag1, tag2 -ID existing_id -Force
 
+    .PARAMETER ID
+        ID for the new note.  Defaults to randomly generated GUID
+
+    .PARAMETER Data
+        Data for the new note.  See backend specifications to determine supported data types and serialization
+
+    .PARAMETER Tags
+        Tags for the new note.
+
+        Tags are a way to tag or classify a note for searching or organizational purposes
+
+    .PARAMETER UpdatedBy
+        UpdatedBy for the new note.  Defaults to $ENV:USERNAME
+
+    .PARAMETER RelatedIDs
+        RelatedIDs for the new note.  No validation is performed
+
+        This is a way to tie your note to other notes
+
+    .PARAMETER Source
+        Source for a note.  For default values, See backend specifications
+
+    .PARAMETER Force
+        If a note with the specified ID exists, overwrite it
     #>
     [cmdletbinding()]
     param(

@@ -2,10 +2,47 @@ Function Set-Note {
     <#
     .SYNOPSIS
         Update a note
+
     .DESCRIPTION
         Update a note
+
     .EXAMPLE
         Set-Note -id 1 -data 'new data'
+
+    .PARAMETER TargetID
+        ID of the note to set
+
+    .PARAMETER ID
+        Change  the target note's ID to this
+
+    .PARAMETER Data
+        Change the target note's Data to this
+
+    .PARAMETER Tags
+        Change the target note's tags to this
+
+        Removes all existing tags.  Use RemoveTag or AddTag for iterative changes
+
+    .PARAMETER UpdatedBy
+        Change the target note's UpdatedBy to this.  Defaults to $ENV:USERNAME
+
+    .PARAMETER AddTag
+        Add this to existing tags of the target note
+
+    .PARAMETER RemoveTag
+        Remove this to existing tags of the target note
+
+    .PARAMETER RelatedIDs
+        Change the target note's tags to this.  Removes all existing RelatedIDs.  Use RemoveRelatedID or AddRelatedID for iterative changes
+
+    .PARAMETER AddRelatedID
+        Add this to existing RelatedIDs of the target note
+
+    .PARAMETER RemoveRelatedID
+        Remove this from existing RelatedIDs of the target note
+
+    .PARAMETER Source
+        Change the target note's Source to this
     #>
     [cmdletbinding()]
     param(
