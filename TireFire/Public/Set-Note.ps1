@@ -12,7 +12,7 @@ Function Set-Note {
     .PARAMETER TargetID
         ID of the note to set
 
-    .PARAMETER ID
+    .PARAMETER NewID
         Change  the target note's ID to this
 
     .PARAMETER Data
@@ -46,9 +46,11 @@ Function Set-Note {
     #>
     [cmdletbinding()]
     param(
-        [Parameter(Mandatory = $True)]
+        [Parameter(Mandatory = $true,
+                   ValueFromPipelineByPropertyName = $true)]
+        [alias('ID')]
         [string]$TargetID,
-        [string]$ID,
+        [string]$NewID,
         [string[]]$Tags,
         [string[]]$AddTag,
         [string[]]$RemoveTag,
@@ -65,7 +67,7 @@ Function Set-Note {
         $Params = @{
             Action = 'Set'
         }
-        echo TargetID, ID, Tags, AddTags, RemoveTags, Data, Source, UpdatedBy, RelatedIDs, AddRelatedID, RemoveRelatedID | ForEach-Object {
+        echo TargetID, NewID, Tags, AddTag, RemoveTag, Data, Source, UpdatedBy, RelatedIDs, AddRelatedID, RemoveRelatedID | ForEach-Object {
             $Key = $_
             if($PSBoundParameters.ContainsKey($Key)){
                 $Value = $PSBoundParameters[$Key]

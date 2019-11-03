@@ -18,17 +18,21 @@
             Optional: Data, Tags, UpdatedBy, AddTag, RemoveTag, Source, Force
         Set
             Required: RootPath, TargetID
-            Optional: ID, Data, Tags, UpdatedBy, AddTag, RemoveTag, Source
+            Optional: NewID, Data, Tags, UpdatedBy, AddTag, RemoveTag, Source
             For your convenience, you can use Set just like New - specify an ID rather than TargetID
         Remove
             Required: RootPath, ID
 
     .PARAMETER ID
         New:    ID for a new note.  Defaults to randomly generated GUID
-        Set:    Change ID to this
         Get:    Get a note with this specific ID
         Remove: Remove a specific ID
 
+    .PARAMETER NewID
+        Set:    Change ID to this
+
+        Why NewID rather than ID?  Pipeline input for Set-Note should be the ID of a note to change... but that's ID.
+        So TargetID is aliased to ID, allowing pipelineinput, but precluding us from using ID rather than a new parameter
     .PARAMETER TargetID
         Set:    ID of the note to set
 
@@ -94,6 +98,7 @@
 param(
     [string]$ID,
     [string]$TargetID,
+    [string]$NewID,
     [validateset('Get','Set','New','Remove')]
     [string]$Action,
     [object]$Data,
@@ -157,7 +162,7 @@ function Select-Note {
         Write-verbose "Selecting ID [$($Note.ID)] with query [$Query] Tags [$Tags] IncludeRelated [$IncludeRelated]"
         $Output = $False
         if($PSBoundParameters.ContainsKey('Query')){
-            if($Note.Data -match $Query){
+            if($Note.ID -match $Query){
                 $Output = $true
                 Write-Verbose "Query [$Query] matched ID [$($Note.ID)]"
             }
@@ -242,9 +247,10 @@ switch($Action){
                 Select-Note @splat
         }
         else {
-            $NotePath = Join-Path $RootPath $ID
+            $FileName = '{0}-{1}' -f 'pstf', $ID.TrimStart('pstf-')
+            $NotePath = Join-Path $RootPath $FileName
             if(-not (Test-Path $NotePath)){
-                Write-Error "Could not find note with ID [$ID] at path [$Path]"
+                Write-Error "Could not find note with ID [$ID] at path [$NotePath]"
             }
             else {
                 Get-NoteData -Path $NotePath
@@ -258,41 +264,51 @@ switch($Action){
             $ExportPath = Join-Path $RootPath $FileName
             $Note = Get-NoteData -Path $NotePath
             switch ($PSBoundParameters.Keys){
-                'ID' {
+                'NewID' {
                     # Changing the ID changes data outside of the note itself.  filename in this case
-                    $NewFileName = '{0}-{1}' -f 'pstf', $ID.TrimStart('pstf-')
+                    $NewFileName = '{0}-{1}' -f 'pstf', $NewID.TrimStart('pstf-')
                     $ExportPath = Join-Path $RootPath $NewFileName
                     Move-Item -Path $NotePath -Destination $ExportPath -Force
                     if(-not $PSBoundParameters.ContainsKey('Source') -and $NotePath -eq $Note.Source){
                         $Note.Source = $ExportPath
                     }
-                    $Note.ID = $ID
+                    Write-Verbose ("Changing ID from {0} to {1}" -f $Note.ID, $NewID)
+                    $Note.ID = $NewID
                 }
                 'Tags' {
+                    Write-Verbose ("Changing Tags from {0} to {1}" -f $Note.Tags, $Tags)
                     $Note.Tags = $Tags
                 }
                 'RemoveTag' {
+                    Write-Verbose ("Removing Tag {0} from {1}" -f $RemoveTag, $Note.Tags)
                     $Note.Tags = @($Note.Tags).where({$RemoveTag -notcontains $_})
                 }
                 'AddTag' {
+                    Write-Verbose ("Adding Tag {0} to {1}" -f $AddTag, $Note.Tags)
                     $Note.Tags = @($Note.Tags) + @($AddTag) | Select-Object -Unique
                 }
                 'RelatedIDs' {
+                    Write-Verbose ("Changing RelatedIDs from {0} to {1}" -f $Note.RelatedIDs, $RelatedIDs)
                     $Note.RelatedIDs = $RelatedIDs
                 }
                 'RemoveRelatedID' {
+                    Write-Verbose ("Removing RelatedIDs {0} from {1}" -f $RemoveRelatedID, $Note.RelatedIDs)
                     $Note.RelatedIDs = @($Note.RelatedIDs).where({$RemoveRelatedID -notcontains $_})
                 }
                 'AddRelatedID' {
+                    Write-Verbose ("Adding RelatedIDs {0} from {1}" -f $AddRelatedID, $Note.RelatedIDs)
                     $Note.RelatedIDs = @($Note.RelatedIDs) + @($AddRelatedID) | Select-Object -Unique
                 }
                 'Data' {
+                    Write-Verbose ("Changing Data from {0} to {1}" -f $Note.Data, $Data)
                     $Note.Data = $Data
                 }
                 'Source' {
+                    Write-Verbose ("Changing Source from {0} to {1}" -f $Note.Source, $Source)
                     $Note.Source = $Source
                 }
                 'UpdatedBy' {
+                    Write-Verbose ("Changing UpdatedBy from {0} to {1}" -f $Note.UpdatedBy, $UpdatedBy)
                     $Note.UpdatedBy = $UpdatedBy
                 }
             }
@@ -303,7 +319,7 @@ switch($Action){
     }
     'new' {
         if(-not $PSBoundParameters.ContainsKey('ID')){
-            $ID = [guid]::NewGuid()
+            $ID = [guid]::NewGuid().Guid
         }
         $FileName = '{0}-{1}' -f 'pstf', $ID.TrimStart('pstf-')
         $NotePath = Join-Path $RootPath $FileName

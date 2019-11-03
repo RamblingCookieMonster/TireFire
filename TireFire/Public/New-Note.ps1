@@ -36,13 +36,18 @@
     #>
     [cmdletbinding()]
     param(
-        [string]$ID,
-        [string[]]$Tags,
-        [string[]]$AddTag,
-        [string[]]$RemoveTag,
-        [string[]]$RelatedIDs,
+        [parameter(Position=1,
+                   ValueFromPipelineByPropertyName = $True)]
         [object]$Data,
+        [parameter(ValueFromPipelineByPropertyName = $True)]
+        [string]$ID,
+        [parameter(ValueFromPipelineByPropertyName = $True)]
+        [string[]]$Tags,
+        [parameter(ValueFromPipelineByPropertyName = $True)]
+        [string[]]$RelatedIDs,
+        [parameter(ValueFromPipelineByPropertyName = $True)]
         [string]$Source,
+        [parameter(ValueFromPipelineByPropertyName = $True)]
         [string]$UpdatedBy,
         [switch]$Force,
         [string]$Backend = $Script:TireFireConfig.Backend,
