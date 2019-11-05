@@ -135,18 +135,20 @@ Function Get-NoteData {
         [string]$Path
     )
     Write-Verbose "Getting notes from [$Path]"
-    (Get-ChildItem $Path -File).foreach({
-        if($_.Name -notmatch '^pstf-'){
+    foreach($NoteFile in (Get-ChildItem $Path -File)){
+        if($NoteFile.Name -notmatch '^pstf-'){
+            Write-Verbose "Skipping $($NoteFile.Fullname), doesn't start pstf-"
             continue
         }
         try {
-            Import-Clixml -Path $_.Fullname -ErrorAction stop
+            Write-Verbose "Importing $($NoteFile.Fullname)"
+            Import-Clixml -Path $NoteFile.Fullname
         }
         catch {
             Write-Error $_
-            Write-Error "Failed to import $($_.Fullname)"
+            Write-Error "Failed to import $($NoteFile.Fullname)"
         }
-    })
+    }
 }
 
 switch($Action){

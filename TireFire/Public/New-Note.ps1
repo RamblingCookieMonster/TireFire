@@ -78,7 +78,7 @@
         else {
             $BackendScript = $Backends.where({$_.BaseName -eq $Backend}).Fullname
         }
-        if ($Force -or $PSCmdlet.ShouldProcess($ID, 'Create Note with ID [$ID] on backend [$Backend]')) {
+        if ($Force -or $PSCmdlet.ShouldProcess($ID, "Create Note with ID [$ID] on backend [$Backend]")) {
             . $BackendScript @Params
         }
     }

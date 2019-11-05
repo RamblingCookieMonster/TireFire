@@ -4,6 +4,8 @@ This is a PowerShell module to simplify managing notes and their metadata, with 
 
 Why TireFire?  Totally not because we might use this as an index to point to our various documentation tirefires.  Nope.
 
+This is barebones and has minimal testing, just enough to meet my needs for a POC.  Use at your own risk : )
+
 ## Overview
 
 Use this to create, read, update, or delete notes.
@@ -20,13 +22,12 @@ UpdateDate: Date a note was updated
 Source:     User specified source for a note.  Default depends on backend.
 ```
 
-So!  Why might you do this?
+So!  Why might you use something like this?
 
 * Have documentation in multiple sources, without a good index of it all?  Use notes with a predefined schema as an index to your various documentation islands
 * Overabundance of acronyms, project names, groups, etc.?  Use notes to track wtf all this stuff means
+* You don't have a solution in place for something like this already, and/or just want to experiment
 * etc.
-
-This is barebones and has minimal testing, just enough to meet my needs for a POC.  Use at your own risk : )
 
 ## Installation
 
@@ -38,8 +39,9 @@ Get-BackendHelp # Outputs warning with list of backends
 Get-BackendHelp -Name File
 
 # Create and use a File backend for notes
-mkdir C:\notes
-Set-TireFireConfig -Backend File -BackendConfig @{RootPath = 'C:\notes'}
+$NoteHome = 'C:\notes'
+mkdir $NoteHome
+Set-TireFireConfig -Backend File -BackendConfig @{RootPath = $NoteHome}
 ```
 
 ## Examples

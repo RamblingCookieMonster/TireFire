@@ -32,7 +32,7 @@ Function Remove-Note {
         else {
             $BackendScript = $Backends.where({$_.BaseName -eq $Backend}).Fullname
         }
-        if ($PSCmdlet.ShouldProcess($ID, 'Remove Note with ID [$ID] from backend [$Backend]')) {
+        if ($PSCmdlet.ShouldProcess($ID, "Remove Note with ID [$ID] from backend [$Backend]")) {
             . $BackendScript @Params
         }
     }

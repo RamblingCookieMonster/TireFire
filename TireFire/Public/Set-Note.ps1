@@ -88,7 +88,7 @@ Function Set-Note {
         else {
             $BackendScript = $Backends.where({$_.BaseName -eq $Backend}).Fullname
         }
-        if ($PSCmdlet.ShouldProcess($TargetID, 'Change Note with ID [$TargetID] on backend [$Backend]')) {
+        if ($PSCmdlet.ShouldProcess($TargetID, "Change Note with ID [$TargetID] on backend [$Backend]")) {
             . $BackendScript @Params
         }
     }

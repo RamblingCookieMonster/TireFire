@@ -8,7 +8,7 @@ function Select-Note {
         [switch]$IncludeRelated = $IncludeRelated
     )
     $Data = @( foreach($Note in $InputObject){
-        Write-verbose "Selecting ID [$($Note.ID)] with query [$Query] Tags [$Tags] IncludeRelated [$IncludeRelated]"
+        Write-verbose "Checking ID [$($Note.ID)] with query [$Query] Tags [$Tags] IncludeRelated [$IncludeRelated]"
         $Output = $False
         if($PSBoundParameters.ContainsKey('Query')){
             if($Note.ID -match $Query){
