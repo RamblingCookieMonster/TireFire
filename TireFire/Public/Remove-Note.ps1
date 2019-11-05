@@ -6,8 +6,11 @@ Function Remove-Note {
         Remove a note
     .EXAMPLE
         Remove-Note -ID some_id
+    .EXAMPLE
+        # Remove all notes
+        Get-Note | Remove-Note
     #>
-    [cmdletbinding()]
+    [cmdletbinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     param(
         [parameter(Mandatory=$True,
                    ValueFromPipelineByPropertyName = $True)]
@@ -29,6 +32,8 @@ Function Remove-Note {
         else {
             $BackendScript = $Backends.where({$_.BaseName -eq $Backend}).Fullname
         }
-        . $BackendScript @Params
+        if ($PSCmdlet.ShouldProcess($ID, 'Remove Note with ID [$ID] from backend [$Backend]')) {
+            . $BackendScript @Params
+        }
     }
 }

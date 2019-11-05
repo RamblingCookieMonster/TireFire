@@ -2,11 +2,16 @@
     <#
     .SYNOPSIS
         Create or overwrite a note
+
     .DESCRIPTION
         Create or overwrite a note
+
+        See Get-BackendHelp for details on whether a note supports serialization for its Data
     .EXAMPLE
         New-Note -Data 'A bunch of dataaaa' -Tags tag1, tag2
+
     .EXAMPLE
+        # Create a new note with a specific ID and overwrite any note with the same ID
         New-Note -Data 'A bunch of dataaaa' -Tags tag1, tag2 -ID existing_id -Force
 
     .PARAMETER ID
@@ -34,7 +39,7 @@
     .PARAMETER Force
         If a note with the specified ID exists, overwrite it
     #>
-    [cmdletbinding()]
+    [cmdletbinding(SupportsShouldProcess, ConfirmImpact = 'Low')]
     param(
         [parameter(Position=1,
                    ValueFromPipelineByPropertyName = $True)]
@@ -57,7 +62,7 @@
         $Params = @{
             Action = 'New'
         }
-        echo ID, Tags, Data, Source, UpdatedBy, RelatedIDs | ForEach-Object {
+        Write-Output ID, Tags, Data, Source, UpdatedBy, RelatedIDs | ForEach-Object {
             $Key = $_
             if($PSBoundParameters.ContainsKey($Key)){
                 $Value = $PSBoundParameters[$Key]
@@ -73,6 +78,8 @@
         else {
             $BackendScript = $Backends.where({$_.BaseName -eq $Backend}).Fullname
         }
-        . $BackendScript @Params
+        if ($Force -or $PSCmdlet.ShouldProcess($ID, 'Create Note with ID [$ID] on backend [$Backend]')) {
+            . $BackendScript @Params
+        }
     }
 }

@@ -20,6 +20,12 @@ UpdateDate: Date a note was updated
 Source:     User specified source for a note.  Default depends on backend.
 ```
 
+So!  Why might you do this?
+
+* Have documentation in multiple sources, without a good index of it all?  Use notes with a predefined schema as an index to your various documentation islands
+* Overabundance of acronyms, project names, groups, etc.?  Use notes to track wtf all this stuff means
+* etc.
+
 This is barebones and has minimal testing, just enough to meet my needs for a POC.  Use at your own risk : )
 
 ## Installation

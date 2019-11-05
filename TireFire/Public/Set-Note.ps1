@@ -7,13 +7,18 @@ Function Set-Note {
         Update a note
 
     .EXAMPLE
-        Set-Note -id 1 -data 'new data'
+        Set-Note -TargetID 1 -Data 'new data'
+        # Change data on note with ID 1
+
+    .EXAMPLE
+        # Replace all existing tag2 tags with tagtwo tags
+        Get-Note -Tags tag2 | Set-Note -RemoveTag tag2 -AddTag tagtwo
 
     .PARAMETER TargetID
-        ID of the note to set
+        ID of the note to change
 
     .PARAMETER NewID
-        Change  the target note's ID to this
+        Change the target note's ID to this
 
     .PARAMETER Data
         Change the target note's Data to this
@@ -44,7 +49,7 @@ Function Set-Note {
     .PARAMETER Source
         Change the target note's Source to this
     #>
-    [cmdletbinding()]
+    [cmdletbinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     param(
         [Parameter(Mandatory = $true,
                    ValueFromPipelineByPropertyName = $true)]
@@ -67,7 +72,7 @@ Function Set-Note {
         $Params = @{
             Action = 'Set'
         }
-        echo TargetID, NewID, Tags, AddTag, RemoveTag, Data, Source, UpdatedBy, RelatedIDs, AddRelatedID, RemoveRelatedID | ForEach-Object {
+        Write-Output TargetID, NewID, Tags, AddTag, RemoveTag, Data, Source, UpdatedBy, RelatedIDs, AddRelatedID, RemoveRelatedID | ForEach-Object {
             $Key = $_
             if($PSBoundParameters.ContainsKey($Key)){
                 $Value = $PSBoundParameters[$Key]
@@ -83,6 +88,8 @@ Function Set-Note {
         else {
             $BackendScript = $Backends.where({$_.BaseName -eq $Backend}).Fullname
         }
-        . $BackendScript @Params
+        if ($PSCmdlet.ShouldProcess($TargetID, 'Change Note with ID [$TargetID] on backend [$Backend]')) {
+            . $BackendScript @Params
+        }
     }
 }

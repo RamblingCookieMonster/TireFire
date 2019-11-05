@@ -7,13 +7,20 @@ Function Get-Note {
         Get a note
 
     .EXAMPLE
+        # Get all notes
         Get-Note
 
     .EXAMPLE
+        # Get note with ID some_id
         Get-Note -ID some_id
 
     .EXAMPLE
+        # Get notes with tag some_tag
         Get-Note -Tags some_tag
+
+    .EXAMPLE
+        # Get notes with keyword somewhere in the ID, tags, relatedids, or data
+        Get-Note -Query keyword
 
     .PARAMETER ID
         Get a note with this specific ID
@@ -41,7 +48,7 @@ Function Get-Note {
     $Params = @{
         Action = 'Get'
     }
-    echo ID, Tags, IncludeRelated, Query | ForEach-Object {
+    Write-Output ID, Tags, IncludeRelated, Query | ForEach-Object {
         $Key = $_
         if($PSBoundParameters.ContainsKey($Key)){
             $Value = $PSBoundParameters[$Key]
