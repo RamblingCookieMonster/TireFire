@@ -48,6 +48,9 @@ Function Set-Note {
 
     .PARAMETER Source
         Change the target note's Source to this
+
+    .PARAMETER Passthru
+        Return newly created note
     #>
     [cmdletbinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     param(
@@ -65,6 +68,7 @@ Function Set-Note {
         [string[]]$RelatedIDs,
         [string]$Source,
         [string]$UpdatedBy,
+        [switch]$Passthru,
         [string]$Backend = $Script:TireFireConfig.Backend,
         [hashtable]$BackendConfig = $Script:TireFireConfig.BackendConfig
     )
@@ -90,6 +94,9 @@ Function Set-Note {
         }
         if ($PSCmdlet.ShouldProcess($TargetID, "Change Note with ID [$TargetID] on backend [$Backend]")) {
             . $BackendScript @Params
+            if($Passthru){
+                Get-Note -Backend $Backend -BackendConfig $BackendConfig -ID $TargetID
+            }
         }
     }
 }

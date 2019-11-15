@@ -38,6 +38,8 @@
 
     .PARAMETER Force
         If a note with the specified ID exists, overwrite it
+    .PARAMETER Passthru
+        Return newly created note
     #>
     [cmdletbinding(SupportsShouldProcess, ConfirmImpact = 'Low')]
     param(
@@ -55,14 +57,19 @@
         [parameter(ValueFromPipelineByPropertyName = $True)]
         [string]$UpdatedBy,
         [switch]$Force,
+        [switch]$Passthru,
         [string]$Backend = $Script:TireFireConfig.Backend,
         [hashtable]$BackendConfig = $Script:TireFireConfig.BackendConfig
     )
     process {
+        if(-not $PSBoundParameters.ContainsKey('ID')){
+            $ID = [guid]::NewGuid().Guid
+        }
         $Params = @{
             Action = 'New'
+            ID = $ID
         }
-        Write-Output ID, Tags, Data, Source, UpdatedBy, RelatedIDs | ForEach-Object {
+        Write-Output Tags, Data, Source, UpdatedBy, RelatedIDs | ForEach-Object {
             $Key = $_
             if($PSBoundParameters.ContainsKey($Key)){
                 $Value = $PSBoundParameters[$Key]
@@ -80,6 +87,9 @@
         }
         if ($Force -or $PSCmdlet.ShouldProcess($ID, "Create Note with ID [$ID] on backend [$Backend]")) {
             . $BackendScript @Params
+            if($Passthru){
+                Get-Note -Backend $Backend -BackendConfig $BackendConfig -ID $ID
+            }
         }
     }
 }
