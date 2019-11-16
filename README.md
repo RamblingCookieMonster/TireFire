@@ -1,6 +1,6 @@
 # TireFire
 
-This is a PowerShell module to simplify managing notes and their metadata, with a pluggable back end.
+This is a PowerShell module to help manage notes and their metadata, with a pluggable back end.
 
 Why TireFire?  Totally not because we might use this as an index to point to our various documentation tirefires.  Nope.
 
@@ -28,6 +28,8 @@ So!  Why might you use something like this?
 * Overabundance of acronyms, project names, groups, etc.?  Use notes to track wtf all this stuff means
 * You don't have a solution in place for something like this already, and/or just want to experiment
 * etc.
+
+You might consider a variety of UIs.  Perhaps a PoshBot plugin that takes into account some common schema to simplify input and display, or a Dots plugin that pulls in notes and relates them to nodes in the DB.
 
 ## Installation
 
