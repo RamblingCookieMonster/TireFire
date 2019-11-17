@@ -45,9 +45,7 @@ Function Get-Note {
         [string]$Backend = $Script:TireFireConfig.Backend,
         [hashtable]$BackendConfig = $Script:TireFireConfig.BackendConfig
     )
-    $Params = @{
-        Action = 'Get'
-    }
+    $Params = @{}
     Write-Output ID, Tags, IncludeRelated, Query | ForEach-Object {
         $Key = $_
         if($PSBoundParameters.ContainsKey($Key)){
@@ -58,11 +56,11 @@ Function Get-Note {
     foreach($Param in $BackendConfig.Keys){
         $Params.Add($Param, $BackendConfig[$Param])
     }
-    if($Script:Backends.BaseName -notcontains $Backend){
-        Throw "$Backend is not a valid backend.  Valid backends:`n$($Script:Backends.BaseName | Out-String)"
+    if(-not $Script:BackendHash.ContainsKey($Backend)){
+        Throw "$Backend is not a valid backend.  Valid backends:`n$($Script:BackendHash.keys | Out-String)"
     }
     else {
-        $BackendScript = $Backends.where({$_.BaseName -eq $Backend}).Fullname
+        $BackendScript = $Script:BackendHash[$Backend].get
     }
     . $BackendScript @Params
 }

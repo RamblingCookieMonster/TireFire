@@ -13,28 +13,38 @@ foreach ($import in @($public + $private)) {
 $TireFireConfig = @{
     Backend = 'File'
     BackendConfig = @{ }
-    BackendScriptPath = [string[]]'Default'
+    BackendPath = [string[]]'Default'
 }
 # Append default to end if specified
-if($TireFireConfig.BackendScriptPath -notcontains 'Default'){
-    $TireFireConfig.BackendScriptPath += 'Default'
+if($TireFireConfig.BackendPath -notcontains 'Default'){
+    $TireFireConfig.BackendPath += 'Default'
 }
-[array]::reverse($TireFireConfig.BackendScriptPath)
+[array]::reverse($TireFireConfig.BackendPath)
 $BackendHash = @{}
-$Backends = foreach($Path in $TireFireConfig.BackendScriptPath){
+foreach($Path in $TireFireConfig.BackendPath){
     if($Path -eq 'Default'){
-        $Path = Join-Path $PSScriptRoot Backends/*.ps1
+        $Path = Join-Path $PSScriptRoot Backends
     }
     Write-Verbose "Checking $Path for Backend scripts"
-    $Scripts = @(Get-ChildItem -Path $Path -File -Filter *.ps1)
-    foreach($Script in $Scripts){
-        if(-not $BackendHash.ContainsKey($Script.BaseName)){
-            Write-Verbose "Importing [$($Script.Fullname)] from path [$SPath]"
-            $BackendHash.add($Script.BaseName, $Script.FullName)
-            $Script
+    $Directories = @(Get-ChildItem -Path $Path -Directory)
+    foreach($Backend in $Directories){
+        if(-not $BackendHash.ContainsKey($Backend.BaseName)){
+            Write-Verbose "Adding [$($Backend.Fullname)] backend from path [$SPath]"
+            $BackendScripts = @{}
+            'New', 'Get', 'Set', 'Remove' | ForEach-Object {
+                $ExpectedFileName = "{0}{1}.ps1" -f $_, $Backend.BaseName
+                $ExpectedScript = Join-Path $Backend.FullName $ExpectedFileName
+                if(-not (Test-Path $ExpectedScript -ErrorAction SilentlyContinue)){
+                    Write-Warning "[$($Backend.BaseName)] backend does not contain expected [$_] script at [$($ExpectedScript.Fullname)]"
+                }
+                else {
+                    $BackendScripts.add($_, $ExpectedScript)
+                }
+            }
+            $BackendHash.add($Backend.BaseName, $BackendScripts)
         }
         else {
-            Write-Verbose "Skipping [$($Script.Fullname)].  Change BackendScriptPath precedence if needed"
+            Write-Verbose "Skipping [$($Backend.Fullname)].  Change BackendPath precedence if needed"
         }
     }
 }

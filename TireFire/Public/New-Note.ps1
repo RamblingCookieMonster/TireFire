@@ -66,10 +66,9 @@
             $ID = [guid]::NewGuid().Guid
         }
         $Params = @{
-            Action = 'New'
             ID = $ID
         }
-        Write-Output Tags, Data, Source, UpdatedBy, RelatedIDs | ForEach-Object {
+        Write-Output Tags, Data, Source, UpdatedBy, RelatedIDs, Passthru | ForEach-Object {
             $Key = $_
             if($PSBoundParameters.ContainsKey($Key)){
                 $Value = $PSBoundParameters[$Key]
@@ -79,17 +78,14 @@
         foreach($Param in $BackendConfig.Keys){
             $Params.Add($Param, $BackendConfig[$Param])
         }
-        if($Script:Backends.BaseName -notcontains $Backend){
-            Throw "$Backend is not a valid backend.  Valid backends:`n$($Script:Backends.BaseName | Out-String)"
+        if(-not $Script:BackendHash.ContainsKey($Backend)){
+            Throw "$Backend is not a valid backend.  Valid backends:`n$($Script:BackendHash.keys | Out-String)"
         }
         else {
-            $BackendScript = $Backends.where({$_.BaseName -eq $Backend}).Fullname
+            $BackendScript = $Script:BackendHash[$Backend].new
         }
         if ($Force -or $PSCmdlet.ShouldProcess($ID, "Create Note with ID [$ID] on backend [$Backend]")) {
             . $BackendScript @Params
-            if($Passthru){
-                Get-Note -Backend $Backend -BackendConfig $BackendConfig -ID $ID
-            }
         }
     }
 }

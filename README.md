@@ -185,13 +185,12 @@ Each backend has a name, and parameters to configure it, that are set with Set-T
 Set-TireFireConfig -Backend File -BackendConfig @{ RootPath = 'C:\notes' }
 ```
 
-Want to write your own?  This is super janky.  Classes, or individual Set/Get/New/Remove functions per backend would be better.
+Want to write your own?  This is super janky.
 
-* Create a backend file in `TireFire/Backends/$BackendName.ps1`
-* Allow every parameter that can be configured in `Get-Note`, `New-Note`, `Set-Note`, and `Remove-Note`
-* Include an `Action` parameter constrained to `Get`, `New`, `Set`, and `Remove`
-* Include parameters specific to your backend
+* Create a backend folder in `TireFire/Backends/$BackendName` with `Get$BackendName`, `New$BackendName`, `Set$BackendName`, and `Remove$BackendName` ps1 files in it.  We rely on the this naming convention
+* Allow every parameter that can be configured in `Get-Note`, `New-Note`, `Set-Note`, and `Remove-Note` in the respective backend script (e.g. `Get$BackendName` needs to support all parameters from `Get-Note`)
+* Include parameters specific to your backend as needed
 * Include help, and point out `BackEndConfig Parameters` in the `.Description` section, and for the `.Parameter` section of each backendconfig parameter
-* Do stuff based on the parameters : )  See [TireFire/Backends/File.ps1](TireFire/Backends/File.ps1) for an example
+* Do stuff based on the parameters : )  See [TireFire/Backends/File/SetFile.ps1](TireFire/Backends/File/SetFile.ps1) for an example
 
 Yeah.  It's janky af.  Sorry, this is a POC and not something I had time to do right : )
