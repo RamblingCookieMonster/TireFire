@@ -7,10 +7,15 @@ CompanyName = 'Unknown'
 Copyright = '(c) 2019 Warren Frame. All rights reserved.'
 Description = 'Manage notes and tags, with a pluggable back end'
 PowerShellVersion = '5.0'
-FunctionsToExport = '*'
-CmdletsToExport = '*'
-VariablesToExport = '*'
-AliasesToExport = '*'
+FunctionsToExport = @(
+    'Get-BackendHelp',
+    'Get-Note',
+    'Get-TireFireConfig',
+    'New-Note',
+    'Remove-Note',
+    'Set-Note',
+    'Set-TireFireConfig'
+)
 PrivateData = @{
     PSData = @{
         Tags = @('Note', 'Notes', 'Index')
