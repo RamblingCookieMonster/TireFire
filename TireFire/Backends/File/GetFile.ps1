@@ -76,7 +76,7 @@ if(-not $ID){
         Select-Note @splat
 }
 else {
-    $FileName = '{0}-{1}' -f 'pstf', $ID.TrimStart('pstf-')
+    $FileName = '{0}-{1}' -f 'pstf', ($ID -Replace "^pstf-")
     $NotePath = Join-Path $RootPath $FileName
     if(-not (Test-Path $NotePath)){
         Write-Error "Could not find note with ID [$ID] at path [$NotePath]"

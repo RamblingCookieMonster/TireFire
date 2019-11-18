@@ -38,7 +38,7 @@ Install-Module TireFire
 Get-Command -Module TireFire
 
 Get-BackendHelp # Outputs warning with list of backends
-Get-BackendHelp -Name File
+Get-BackendHelp -Name File -Action New
 
 # Create and use a File backend for notes
 $NoteHome = 'C:\notes'

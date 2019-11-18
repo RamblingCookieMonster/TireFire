@@ -57,12 +57,12 @@ if(-not (Test-Path $RootPath)){
 if(-not $PSBoundParameters.ContainsKey('UpdatedBy')){
     $UpdatedBy = $env:USERNAME
 }
+
+$FileName = '{0}-{1}' -f 'pstf', ($ID -replace "^pstf-")
+$NotePath = Join-Path $RootPath $FileName
 if(-not $PSBoundParameters.ContainsKey('Source')){
     $Source = $NotePath
 }
-
-$FileName = '{0}-{1}' -f 'pstf', $ID.TrimStart('pstf-')
-$NotePath = Join-Path $RootPath $FileName
 if(Test-Path -Path $NotePath -ErrorAction SilentlyContinue){
     if($Force){
         Write-Verbose "Overwriting [$NotePath]"

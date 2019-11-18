@@ -67,9 +67,6 @@ param(
     [string[]]$RelatedIDs,
     [string[]]$AddRelatedID,
     [string[]]$RemoveRelatedID,
-    [string]$Query,
-    [switch]$IncludeRelated,
-    [switch]$Force,
     [string]$RootPath,
     [string]$Source,
     [switch]$Passthru
@@ -105,14 +102,14 @@ Function Get-NoteData {
         }
     }
 }
-$FileName = '{0}-{1}' -f 'pstf', $TargetID.TrimStart('pstf-')
+$FileName = '{0}-{1}' -f 'pstf', ($TargetID -replace "^pstf-")
 $NotePath = Join-Path $RootPath $FileName
 $ExportPath = Join-Path $RootPath $FileName
 $Note = Get-NoteData -Path $NotePath
 switch ($PSBoundParameters.Keys){
     'NewID' {
         # Changing the ID changes data outside of the note itself.  filename in this case
-        $NewFileName = '{0}-{1}' -f 'pstf', $NewID.TrimStart('pstf-')
+        $NewFileName = '{0}-{1}' -f 'pstf', ($NewID -replace "^pstf-")
         $ExportPath = Join-Path $RootPath $NewFileName
         Move-Item -Path $NotePath -Destination $ExportPath -Force
         # Only update the source if it explicitly pointed at file previously

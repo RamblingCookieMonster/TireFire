@@ -49,7 +49,7 @@ Function Get-NoteData {
         }
     }
 }
-$FileName = '{0}-{1}' -f 'pstf', $ID.TrimStart('pstf-')
+$FileName = '{0}-{1}' -f 'pstf', ($ID -replace "^pstf-")
 $NotePath = Join-Path $RootPath $FileName
 if(Test-Path $NotePath -ErrorAction SilentlyContinue){
     Write-Verbose "Removing [$NotePath]"

@@ -27,7 +27,7 @@ function Get-BackendHelp {
         [switch]$Full
     )
     if(-not $PSBoundParameters.ContainsKey('Name')){
-        Write-Warning "No name specified.  Valid names and associated paths:`n$()$($Script:Backends | Select-Object BaseName, Fullname | Out-String)"
+        Write-Warning "No name specified.  Valid names:`n$()$($Script:BackendHash.Keys | Out-String)"
         return
     }
     $Backend = $Script:BackendHash.$Name
