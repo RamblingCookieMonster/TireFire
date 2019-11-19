@@ -68,7 +68,7 @@
         $Params = @{
             ID = $ID
         }
-        Write-Output Tags, Data, Source, UpdatedBy, RelatedIDs, Passthru | ForEach-Object {
+        Write-Output Tags, Data, Source, UpdatedBy, RelatedIDs, Passthru, Force | ForEach-Object {
             $Key = $_
             if($PSBoundParameters.ContainsKey($Key)){
                 $Value = $PSBoundParameters[$Key]
