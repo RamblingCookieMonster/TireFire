@@ -8,11 +8,11 @@ Function Set-Note {
 
     .EXAMPLE
         Set-Note -TargetID 1 -Data 'new data'
-        # Change data on note with ID 1
+        Change data on note with ID 1
 
     .EXAMPLE
-        # Replace all existing tag2 tags with tagtwo tags
         Get-Note -Tags tag2 | Set-Note -RemoveTag tag2 -AddTag tagtwo
+        Replace all existing tag2 tags with tagtwo tags
 
     .PARAMETER TargetID
         ID of the note to change
@@ -51,6 +51,12 @@ Function Set-Note {
 
     .PARAMETER Passthru
         Return newly created note
+    .PARAMETER Backend
+        Backend to use.  Defaults to value from Set-TireFireConfig
+    .PARAMETER BackendConfig
+        Configurations specific to the selected backend.  Defaults to value from Set-TireFireConfig
+
+        See Get-BackendHelp for valid BackendConfig parameters
     #>
     [cmdletbinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     param(

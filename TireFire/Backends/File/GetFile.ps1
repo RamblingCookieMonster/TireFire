@@ -27,8 +27,11 @@
 [cmdletbinding()]
 param(
     [string]$ID,
+    [string[]]$Data,
     [string[]]$Tags,
     [string]$Query,
+    [validateset('and','or')]
+    [string]$ComparisonOperator = 'and',
     [switch]$IncludeRelated,
     [string]$RootPath
 )
@@ -73,6 +76,10 @@ if(-not $ID){
         if($PSBoundParameters.ContainsKey('Tags')){
             $splat.Add('Tags', $Tags)
         }
+        if($PSBoundParameters.ContainsKey('Data')){
+            $splat.Add('Data', $Data)
+        }
+        $splat.Add('ComparisonOperator', $ComparisonOperator)
         Select-Note @splat
 }
 else {

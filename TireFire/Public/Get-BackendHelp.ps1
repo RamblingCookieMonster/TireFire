@@ -15,10 +15,18 @@ function Get-BackendHelp {
         Backend help is only intended to give you an idea of how Get, Set,
         New, and Remove-Note will behave.  Do not use the Backend script
         outside of these abstractions
+    .EXAMPLE
+        Get-BackendHelp -Name File -Action New
+        Get help for creating a new note with the File backend
+    .EXAMPLE
+        Get-BackendHelp -Name File
+        Get help for Get, Set, New, and Remove actions for the File backend
     .PARAMETER Name
         Backend name.  e.g. File
     .PARAMETER Action
         Get help for this action for the specified backend name - Get, Set, New, or Remove
+    .PARAMETER Full
+        Get detailed help including examples and description
     #>
     [cmdletbinding()]
     param(

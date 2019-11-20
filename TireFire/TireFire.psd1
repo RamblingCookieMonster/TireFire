@@ -1,6 +1,6 @@
 @{
 RootModule = 'TireFire.psm1'
-ModuleVersion = '0.0.1'
+ModuleVersion = '0.0.3'
 GUID = 'd613d5da-37d8-45d6-8f6e-2f0629a535bd'
 Author = 'Warren Frame'
 CompanyName = 'Unknown'

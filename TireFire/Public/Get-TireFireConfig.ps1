@@ -6,6 +6,7 @@ function Get-TireFireConfig {
        Get TireFire configuration values
     .EXAMPLE
         Get-TireFireConfig
+        Get current TireFire config
     .FUNCTIONALITY
         TireFire
     #>

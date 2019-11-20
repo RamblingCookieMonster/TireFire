@@ -6,9 +6,18 @@ Function Remove-Note {
         Remove a note
     .EXAMPLE
         Remove-Note -ID some_id
+        Remove a note with ID some_id
     .EXAMPLE
-        # Remove all notes
         Get-Note | Remove-Note
+        Remove allll the notes
+    .PARAMETER ID
+        ID of note to remove
+    .PARAMETER Backend
+        Backend to use.  Defaults to value from Set-TireFireConfig
+    .PARAMETER BackendConfig
+        Configurations specific to the selected backend.  Defaults to value from Set-TireFireConfig
+
+        See Get-BackendHelp for valid BackendConfig parameters
     #>
     [cmdletbinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     param(

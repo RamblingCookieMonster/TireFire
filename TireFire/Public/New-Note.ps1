@@ -9,10 +9,11 @@
         See Get-BackendHelp for details on whether a note supports serialization for its Data
     .EXAMPLE
         New-Note -Data 'A bunch of dataaaa' -Tags tag1, tag2
+        Create a new note with some data and tags
 
     .EXAMPLE
-        # Create a new note with a specific ID and overwrite any note with the same ID
         New-Note -Data 'A bunch of dataaaa' -Tags tag1, tag2 -ID existing_id -Force
+        Create a new note with a specific ID and overwrite any note with the same ID
 
     .PARAMETER ID
         ID for the new note.  Defaults to randomly generated GUID
@@ -40,6 +41,12 @@
         If a note with the specified ID exists, overwrite it
     .PARAMETER Passthru
         Return newly created note
+    .PARAMETER Backend
+        Backend to use.  Defaults to value from Set-TireFireConfig
+    .PARAMETER BackendConfig
+        Configurations specific to the selected backend.  Defaults to value from Set-TireFireConfig
+
+        See Get-BackendHelp for valid BackendConfig parameters
     #>
     [cmdletbinding(SupportsShouldProcess, ConfirmImpact = 'Low')]
     param(

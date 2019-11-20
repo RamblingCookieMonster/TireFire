@@ -28,25 +28,47 @@ Function Get-Note {
     .PARAMETER Tags
         Get a note with at least one of these Tags
 
+    .PARAMETER Data
+        One or more strings to search for in the Data field
+
     .PARAMETER Query
         Search notes using regex (-Match)
 
         We search a note's ID, Tags, RelatedIDs, Data, and jsonified Data
 
+    .PARAMETER ComparisonOperator
+        If more than one filter is provided (Query, Data, Tags), use this operator:
+
+        Or:  Return the note if any of the conditions are met.  More performant, less selective
+        And: Return the note only when all of the conditions are met.  More selective, less performant
+    .PARAMETER MergeData
+        If specified, merge all properties fom the $Note.Data into $Note itself
+
+        Existing $Note properties take precedence
     .PARAMETER IncludeRelated
         For any note identified by your query, include all notes from RelatedIDs
+    .PARAMETER Backend
+        Backend to use.  Defaults to value from Set-TireFireConfig
+    .PARAMETER BackendConfig
+        Configurations specific to the selected backend.  Defaults to value from Set-TireFireConfig
+
+        See Get-BackendHelp for valid BackendConfig parameters
     #>
     [cmdletbinding()]
     param(
         [string]$Query,
         [string]$ID,
+        [string[]]$Data,
         [string[]]$Tags,
         [switch]$IncludeRelated,
+        [switch]$MergeData,
+        [validateset('and', 'or')]
+        [string]$ComparisonOperator = 'and',
         [string]$Backend = $Script:TireFireConfig.Backend,
         [hashtable]$BackendConfig = $Script:TireFireConfig.BackendConfig
     )
-    $Params = @{}
-    Write-Output ID, Tags, IncludeRelated, Query | ForEach-Object {
+    $Params = @{ComparisonOperator = $ComparisonOperator}
+    Write-Output ID, Tags, IncludeRelated, Query, Data | ForEach-Object {
         $Key = $_
         if($PSBoundParameters.ContainsKey($Key)){
             $Value = $PSBoundParameters[$Key]
@@ -62,5 +84,13 @@ Function Get-Note {
     else {
         $BackendScript = $Script:BackendHash[$Backend].get
     }
-    . $BackendScript @Params
+    $Notes = . $BackendScript @Params
+    if($MergeData){
+        foreach($Note in $Notes){
+            foreach($Prop in @($Note.Data.psobject.properties.name)){
+                Add-Member -InputObject $Note -Type NoteProperty -Name $Prop -Value $Note.Data.$Prop -ErrorAction SilentlyContinue
+            }
+        }
+    }
+    $Notes
 }
