@@ -10,6 +10,8 @@
     .PARAMETER ID
         Get a note with this specific ID
 
+        Accepts wildcard, faster without wildcard
+
     .PARAMETER Tags
         Get a note with at least one of the specified tags
 
@@ -26,10 +28,10 @@
 #>
 [cmdletbinding()]
 param(
-    [string]$ID,
+    [string[]]$ID,
     [string[]]$Data,
     [string[]]$Tags,
-    [string]$Query,
+    [string[]]$Query,
     [validateset('and','or')]
     [string]$ComparisonOperator = 'and',
     [switch]$IncludeRelated,
@@ -63,32 +65,45 @@ Function Get-NoteData {
         }
     }
 }
-if(-not $ID){
-        $splat = @{
-            InputObject = Get-NoteData -Path $RootPath
-        }
-        if($PSBoundParameters.ContainsKey('Query')){
-            $splat.Add('Query', $Query)
-        }
-        if($PSBoundParameters.ContainsKey('IncludeRelated')){
-            $splat.Add('IncludeRelated', $IncludeRelated)
-        }
-        if($PSBoundParameters.ContainsKey('Tags')){
-            $splat.Add('Tags', $Tags)
-        }
-        if($PSBoundParameters.ContainsKey('Data')){
-            $splat.Add('Data', $Data)
-        }
-        $splat.Add('ComparisonOperator', $ComparisonOperator)
-        Select-Note @splat
+
+$splat = @{
+    InputObject = Get-NoteData -Path $RootPath
 }
-else {
-    $FileName = '{0}-{1}' -f 'pstf', ($ID -Replace "^pstf-")
-    $NotePath = Join-Path $RootPath $FileName
-    if(-not (Test-Path $NotePath)){
-        Write-Error "Could not find note with ID [$ID] at path [$NotePath]"
+if($PSBoundParameters.ContainsKey('ID')){
+    $Exact = $true
+    foreach($IDString in $ID){
+        if($IDString -match '\*'){
+            $Exact = $false
+        }
+    }
+    if($Exact){
+        foreach($IDString in $ID){
+            $FileName = '{0}-{1}' -f 'pstf', ($IDString -Replace "^pstf-")
+            $NotePath = Join-Path $RootPath $FileName
+            if(-not (Test-Path $NotePath)){
+                Write-Error "Could not find note with ID [$IDString] at path [$NotePath]"
+            }
+            else {
+                Get-NoteData -Path $NotePath
+            }
+        }
+        return
     }
     else {
-        Get-NoteData -Path $NotePath
+        $splat.add('Id', $ID)
     }
 }
+if($PSBoundParameters.ContainsKey('Query')){
+    $splat.Add('Query', $Query)
+}
+if($PSBoundParameters.ContainsKey('IncludeRelated')){
+    $splat.Add('IncludeRelated', $IncludeRelated)
+}
+if($PSBoundParameters.ContainsKey('Tags')){
+    $splat.Add('Tags', $Tags)
+}
+if($PSBoundParameters.ContainsKey('Data')){
+    $splat.Add('Data', $Data)
+}
+$splat.Add('ComparisonOperator', $ComparisonOperator)
+Select-Note @splat

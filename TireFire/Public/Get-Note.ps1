@@ -37,10 +37,17 @@ Function Get-Note {
         We search a note's ID, Tags, RelatedIDs, Data, and jsonified Data
 
     .PARAMETER ComparisonOperator
-        If more than one filter is provided (Query, Data, Tags), use this operator:
+        If more than one filter is provided (Id, Query, Data, Tags), use this operator:
 
         Or:  Return the note if any of the conditions are met.  More performant, less selective
         And: Return the note only when all of the conditions are met.  More selective, less performant
+
+        This applies across parameters, as well as for array input for Id, Query, Data, and Tags parameters
+
+        Example:
+           -ComparisonOperator And -Query Foo, Bar -Tags Buzz: Return only if _both_ foo and bar are found via Query, and Buzz is found in Tags
+           -ComparisonOperator Or  -Query Foo, Bar -Tags Buzz: Return if either foo or bar are found via Query, or if Buzz is found in Tags
+
     .PARAMETER MergeData
         If specified, merge all properties fom the $Note.Data into $Note itself
 
@@ -56,8 +63,8 @@ Function Get-Note {
     #>
     [cmdletbinding()]
     param(
-        [string]$Query,
-        [string]$ID,
+        [string[]]$Query,
+        [string[]]$ID,
         [string[]]$Data,
         [string[]]$Tags,
         [switch]$IncludeRelated,
