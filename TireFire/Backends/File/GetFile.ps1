@@ -29,6 +29,7 @@
 [cmdletbinding()]
 param(
     [string[]]$ID,
+    [string[]]$ExcludeID = @(),
     [string[]]$Data,
     [string[]]$Tags,
     [string[]]$Query,
@@ -47,13 +48,23 @@ if(-not (Test-Path $RootPath)){
 Function Get-NoteData {
     [cmdletbinding()]
     param(
-        [string]$Path
+        [string]$Path,
+        [string[]]$ExcludeID
     )
     Write-Verbose "Getting notes from [$Path]"
-    foreach($NoteFile in (Get-ChildItem $Path -File)){
+    :file foreach($NoteFile in (Get-ChildItem $Path -File)){
         if($NoteFile.Name -notmatch '^pstf-'){
             Write-Verbose "Skipping $($NoteFile.Fullname), doesn't start pstf-"
             continue
+        }
+        if($PSBoundParameters.ContainsKey('ExcludeID')){
+            foreach($ExcludedID in $ExcludeID){
+                $ThisID = $NoteFile.Basename -replace '^pstf-'
+                if($ThisID -like $ExcludedID){
+                    Write-Verbose "Excluding [$($NoteFile.Fullname)] due to ExcludeID [$ExcludedID]"
+                    continue file
+                }
+            }
         }
         try {
             Write-Verbose "Importing $($NoteFile.Fullname)"
@@ -67,7 +78,7 @@ Function Get-NoteData {
 }
 
 $splat = @{
-    InputObject = Get-NoteData -Path $RootPath
+    InputObject = Get-NoteData -Path $RootPath -ExcludeID $ExcludeID
 }
 if($PSBoundParameters.ContainsKey('ID')){
     $Exact = $true

@@ -101,4 +101,8 @@ Describe "Test Get-Note" {
         $Notes = Get-Note -ID *-1 -Data other -Tags tag3 -ComparisonOperator And
         @($Notes).count | Should be 0
     }
+    It 'should exclude IDs' {
+        $Notes = Get-Note -ExcludeId *-1
+        $Notes.count | Should Be 2
+    }
 }

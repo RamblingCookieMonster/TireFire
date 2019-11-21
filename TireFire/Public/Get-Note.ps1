@@ -25,6 +25,12 @@ Function Get-Note {
     .PARAMETER ID
         Get a note with this specific ID
 
+    .PARAMETER ExcludeID
+        Do not include notes like this ID
+        When an ID is excluded, we do not need to read the note file at all
+
+        Accepts wildcards
+
     .PARAMETER Tags
         Get a note with at least one of these Tags
 
@@ -67,6 +73,7 @@ Function Get-Note {
         [string[]]$ID,
         [string[]]$Data,
         [string[]]$Tags,
+        [string[]]$ExcludeID,
         [switch]$IncludeRelated,
         [switch]$MergeData,
         [validateset('and', 'or')]
@@ -75,7 +82,7 @@ Function Get-Note {
         [hashtable]$BackendConfig = $Script:TireFireConfig.BackendConfig
     )
     $Params = @{ComparisonOperator = $ComparisonOperator}
-    Write-Output ID, Tags, IncludeRelated, Query, Data | ForEach-Object {
+    Write-Output ID, Tags, IncludeRelated, Query, Data, ExcludeID | ForEach-Object {
         $Key = $_
         if($PSBoundParameters.ContainsKey($Key)){
             $Value = $PSBoundParameters[$Key]
