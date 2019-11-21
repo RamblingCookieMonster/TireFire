@@ -1,6 +1,6 @@
 # TireFire
 
-This is a PowerShell module to help manage notes and their metadata, with a pluggable back end.
+This is a PowerShell module to help manage notes and their metadata, with a pluggable back-end.
 
 Why TireFire?  Totally not because we might use this as an index to point to our various documentation tirefires.  Nope.
 
@@ -14,18 +14,19 @@ Note schema:
 
 ```text
 ID:         User specified unique ID for a note.  Defaults to a GUID
-Data:       Your note!  Some backends support serialization
+Data:       Your note!  Some back-ends support serialization
 Tags:       One or more tags to help organize and search for notes
 RelatedIDs: One or more IDs of related notes.  No validation
 UpdatedBy:  User specified UpdatedBy field.  Defaults to $ENV:USERNAME
 UpdateDate: Date a note was updated
-Source:     User specified source for a note.  Default depends on backend.
+Source:     User specified source for a note.  Default depends on back-end
 ```
 
 So!  Why might you use something like this?
 
 * Have documentation in multiple sources, without a good index of it all?  Use notes with a predefined schema as an index to your various documentation islands
 * Overabundance of acronyms, project names, groups, etc.?  Use notes to track wtf all this stuff means
+* No consolidated list of tools/services for your team?  Create one!  Maybe include both the service uri and documentation uri(s)
 * You don't have a solution in place for something like this already, and/or just want to experiment
 * etc.
 
@@ -37,10 +38,10 @@ You might consider a variety of UIs.  Perhaps a PoshBot plugin that takes into a
 Install-Module TireFire
 Get-Command -Module TireFire
 
-Get-BackendHelp # Outputs warning with list of backends
+Get-BackendHelp # Outputs warning with list of back-ends
 Get-BackendHelp -Name File -Action New
 
-# Create and use a File backend for notes
+# Create and use a File back-end for notes
 $NoteHome = 'C:\notes'
 mkdir $NoteHome
 Set-TireFireConfig -Backend File -BackendConfig @{RootPath = $NoteHome}
@@ -48,7 +49,7 @@ Set-TireFireConfig -Backend File -BackendConfig @{RootPath = $NoteHome}
 
 ## Examples
 
-We'll start with the simplest built in backend:  `File`
+We'll start with the simplest built in back-end:  `File`
 
 #### Creating and querying notes
 
@@ -158,11 +159,11 @@ Get-Note | Remove-Note
 Get-Note # all gone
 ```
 
-## Back ends
+## Back-ends
 
-TireFire supports multiple back ends.  Some details:
+TireFire supports multiple back-ends that should be transparent when working with notes
 
-### Back end descriptions
+### Back-end descriptions
 
 #### File
 
@@ -177,19 +178,19 @@ Details:
 * `Scalability`:  Each note is a file in the RootPath.  This means you may run into performance issues in general with a large number of notes, and Get-Note with anything but `-ID` will read every single file
 * `When to use`:  When you don't have another back end, or don't need to scale.  We use Clixml so storage won't be very efficient, and use single files per note in a single directory, so don't go crazy creating too many notes!
 
-### Writing your own Back end
+### Writing your own back-end
 
-Each backend has a name, and parameters to configure it, that are set with Set-TireFireConfig:
+Each back-end has a name, and parameters to configure it, that are set with Set-TireFireConfig:
 
 ```powershell
 Set-TireFireConfig -Backend File -BackendConfig @{ RootPath = 'C:\notes' }
 ```
 
-Want to write your own?  This is super janky.
+Want to write your own?
 
-* Create a backend folder in `TireFire/Backends/$BackendName` with `Get$BackendName`, `New$BackendName`, `Set$BackendName`, and `Remove$BackendName` ps1 files in it.  We rely on the this naming convention
+* Create a back-end folder in `TireFire/Backends/$BackendName` with `Get$BackendName`, `New$BackendName`, `Set$BackendName`, and `Remove$BackendName` ps1 files in it.  We rely on the this naming convention
 * Allow every parameter that can be configured in `Get-Note`, `New-Note`, `Set-Note`, and `Remove-Note` in the respective backend script (e.g. `Get$BackendName` needs to support all parameters from `Get-Note`)
-* Include parameters specific to your backend as needed
+* Include parameters specific to your back-end as needed
 * Include help, and point out `BackEndConfig Parameters` in the `.Description` section, and for the `.Parameter` section of each backendconfig parameter
 * Do stuff based on the parameters : )  See [TireFire/Backends/File/SetFile.ps1](TireFire/Backends/File/SetFile.ps1) for an example
 
